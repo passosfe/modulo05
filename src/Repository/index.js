@@ -3,7 +3,8 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
 import Container from "../components/Container/index";
-import { Loading, Owner, IssueList } from "./styles";
+import Dropdown from "../components/Dropdown/index";
+import { Loading, Owner, IssueList, FilterBar } from "./styles";
 import api from "../services/api";
 
 export default class Repository extends Component {
@@ -18,10 +19,21 @@ export default class Repository extends Component {
   state = {
     repository: "",
     issues: [],
-    loading: true
+    loading: true,
+    filter: "all",
+    page: 1
   };
 
+  async componentWillUpdate() {
+    this.callAPI();
+  }
+
   async componentDidMount() {
+    this.callAPI();
+  }
+
+  callAPI = async () => {
+    const { filter, page } = this.state;
     const { match } = this.props;
 
     const repoName = decodeURIComponent(match.params.repository);
@@ -30,8 +42,8 @@ export default class Repository extends Component {
       api.get(`/repos/${repoName}`),
       api.get(`/repos/${repoName}/issues`, {
         params: {
-          state: "open",
-          per_page: 5
+          state: filter,
+          page: page
         }
       })
     ]);
@@ -41,10 +53,18 @@ export default class Repository extends Component {
       issues: issues.data,
       loading: false
     });
-  }
+  };
+
+  changeFilter = (e) => {
+    const newFilter = e.currentTarget.textContent;
+
+    if (newFilter !== this.state.filter) {
+      this.setState({ filter: newFilter, page: 1 });
+    }
+  };
 
   render() {
-    const { repository, issues, loading } = this.state;
+    const { repository, issues, loading, filter } = this.state;
 
     if (loading) {
       return <Loading>Carregando</Loading>;
@@ -58,6 +78,11 @@ export default class Repository extends Component {
           <h1>{repository.name}</h1>
           <p>{repository.description}</p>
         </Owner>
+
+        <FilterBar>
+          <hr />
+          <Dropdown checked={filter} changeFilter={this.changeFilter} />
+        </FilterBar>
 
         <IssueList>
           {issues.map((issue) => (

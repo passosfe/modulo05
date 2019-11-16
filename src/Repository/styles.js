@@ -101,3 +101,21 @@ export const IssueList = styled.ul`
     }
   }
 `;
+
+export const FilterBar = styled.div`
+  padding: 15px 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: top;
+
+  hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #eee;
+    margin-top: 21px;
+    margin-right: 15px;
+    width: 100%;
+  }
+`;
